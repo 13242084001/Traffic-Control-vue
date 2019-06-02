@@ -3,6 +3,7 @@
     <h1>{{ msg }}</h1>
     <Collapse v-model="value2" accordion>
       <Panel name="1" hide-arrow>
+        状态
         <div slot="content">
           <div>
             <Row>
@@ -15,13 +16,13 @@
                     <div v-if="controlled_ip_list.length > 0">
                       <p style="padding-left: 60px" v-if="controlled_ip_list"
                          v-for="controlled_ip_dict in controlled_ip_list">
-                     <span style="cursor: pointer">
+                        <span style="margin-right: 10px;cursor: pointer" @click="dele(controlled_ip_dict.controlled_ip)"><i class="fa fa-times" aria-hidden="true"></i></span>
+                     <span style="cursor: pointer" @click="action(controlled_ip_dict.controlled_ip)">
                        {{ controlled_ip_dict.controlled_ip }}
                      </span>
                         <!--要记得动态更改css样式-->
-
-                        <span v-if="controlled_ip_dict.status === 'on'"
-                              style="font-size: 5px;float: right;color: #1d9d74;cursor: pointer" @click="shaping"><i
+                        <span v-if="controlled_ip_dict.status === true"
+                              style="font-size: 5px;float: right;color: #1d9d74;cursor: pointer" @click="shaping()"><i
                           class="fa fa-circle" aria-hidden="true"></i></span>
                         <span v-else style="font-size: 5px;float: right;color: #E55457;cursor: pointer"><i
                           class="fa fa-circle" aria-hidden="true"></i></span>
@@ -42,7 +43,7 @@
         </div>
       </Panel>
       <Panel name="2" hide-arrow>
-        斯蒂夫·盖瑞·沃兹尼亚克
+        配置
         <div slot="content">
           <Row :gutter="30">
             <Col span="6">
@@ -132,16 +133,21 @@
                 <FormItem label="Percentage(百分比)">
                   <Input v-model="downstream.corruption.percentage"></Input>
                 </FormItem>
+                <Divider orientation="left">Reoder(重传)</Divider>
+                <FormItem label="Percentage(百分比)">
+                  <Input v-model="upstream.reorder.percentage"></Input>
+                </FormItem>
               </Form>
             </Col>
-            <Button type="success" long v-on:click="shaping()">SUBMIT</Button>
+            <Button v-if="doit === 'UPDATE'" type="info" long v-on:click="shaping(rule.local_ip)">{{ doit }}</Button>
+            <Button v-else type="success" long v-on:click="shaping(rule.local_ip)">{{ doit }}</Button>
           </Row>
         </div>
       </Panel>
       <Panel name="3" hide-arrow>
-        乔纳森·伊夫
+        规则模板
         <p slot="content">
-          乔纳森·伊夫是一位工业设计师，现任Apple公司设计师兼资深副总裁，英国爵士。他曾参与设计了iPod，iMac，iPhone，iPad等众多苹果产品。除了乔布斯，他是对苹果那些著名的产品最有影响力的人。</p>
+          功能开发中。。。</p>
       </Panel>
     </Collapse>
     <Row>
@@ -184,6 +190,7 @@
       return {
         msg: 'Traffic Control for HST',
         msg1: null,
+        doit: "SUBMIT",
         value2: '1',
         devIp: null,
         controlled_ip_list: [
@@ -191,7 +198,7 @@
           //{"controlled_ip": "171.16.1.2", "status": "off"}
         ],
         rule: {
-          protocol: '',
+          protocol: "All",
           local_ip: '',
           local_port: '',
           remote_ip: '',
@@ -249,10 +256,28 @@
           }
         })
       },
-      shaping() {
+      shaping(ip) {
+        console.log(ip);
         var that =this;
-        this.$axios.request({
-          url: "http://192.168.0.10:81/shaping/" + that.devIp,
+        if(this.doit === "UPDATE"){
+          this.$axios.request({
+            url: "http://192.168.0.10:81/shaping/" + ip + "/",
+            method: "put",
+            params: {},
+            data: {
+              rule: that.rule,
+              upstream: that.upstream,
+              downstream: that.downstream
+            }
+          }).then(function (ret) {
+            if(ret.status === 200){
+              console.log("success");
+              that.$Message.success("更新成功！")
+            }
+          })
+        }else (
+          this.$axios.request({
+          url: "http://192.168.0.10:81/shaping/" + ip + "/",
           method: "post",
           params: {},
           data: {
@@ -261,9 +286,42 @@
             downstream: that.downstream
           }
         }).then(function (ret) {
-          console.log(ret)
+          console.log(ret);
+          that.getDevIP();
+            that.$Message.success("添加成功！")
         })
+        )
+
       },
+      // 查询一条设备数据
+      action(ip) {
+        var that = this;
+        that.$axios.request({
+          url: "http://192.168.0.10:81/shaping/" + ip,
+          method: 'get'
+        }).then(function (ret) {
+          console.log(ret);
+          console.log(ret.data);
+          that.rule = ret.data.rule;
+          that.upstream = ret.data.upstream;
+          that.downstream = ret.data.downstream;
+          that.doit = "UPDATE"
+        })
+
+      },
+      //删除一个设备
+      dele(ip) {
+        var that = this;
+        that.$axios.request({
+          url: "http://192.168.0.10:81/shaping/" + ip,
+          method: 'delete'
+        }).then(function (ret) {
+          if(ret.status === 200) {
+            that.$Message.success("删除成功！");
+            that.getDevIP();
+          }
+        })
+      }
 
 
     },
