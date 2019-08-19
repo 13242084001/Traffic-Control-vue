@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <h1 style="background-color:#9b0909;color:black;padding:30px 20px">{{ msg }}</h1>
     <Collapse v-model="value2" accordion>
       <Panel name="1" hide-arrow>
         状态
@@ -34,8 +34,15 @@
                 </Card>
               </Col>
               <Col span="12">
-                <h2>Your Device Address</h2>
-                <h1>{{ devIp }}</h1>
+                <!--<h2>Your Device Address</h2>
+                <h1>{{ devIp }}</h1>-->
+		<div style="background-color:black;color:white">
+		  <p>&nbsp;&nbsp;interface: eth0</p>
+		  <p>&nbsp;&nbsp;IP Address is: 192.168.0.10</p>
+		  <p>&nbsp;&nbsp;======================================================================</p>
+		  <p>&nbsp;&nbsp;<span style="margin-right: 200px">192.168.0.10</span><span style="margin-right: 200px">===></span></p>
+		  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+		</div>
               </Col>
             </Row>
 
@@ -245,7 +252,7 @@
       getDevIP() {
         var that = this;
         this.$axios.request({
-          url: "http://192.168.0.10:81/getDevIp",
+          url: process.env.URL_PATH+"/getDevIp",
           method: "get"
         }).then(function (ret) {
           console.log(ret);
@@ -261,7 +268,7 @@
         var that =this;
         if(this.doit === "UPDATE"){
           this.$axios.request({
-            url: "http://192.168.0.10:81/shaping/" + ip + "/",
+            url: process.env.URL_PATH+"/shaping/" + ip,
             method: "put",
             params: {},
             data: {
@@ -277,7 +284,7 @@
           })
         }else (
           this.$axios.request({
-          url: "http://192.168.0.10:81/shaping/" + ip + "/",
+          url: process.env.URL_PATH+"/shaping/" + ip,
           method: "post",
           params: {},
           data: {
@@ -297,7 +304,7 @@
       action(ip) {
         var that = this;
         that.$axios.request({
-          url: "http://192.168.0.10:81/shaping/" + ip,
+          url: process.env.URL_PATH+"/shaping/",
           method: 'get'
         }).then(function (ret) {
           console.log(ret);
@@ -313,7 +320,7 @@
       dele(ip) {
         var that = this;
         that.$axios.request({
-          url: "http://192.168.0.10:81/shaping/" + ip,
+          url: process.env.URL_PATH+"/shaping/",
           method: 'delete'
         }).then(function (ret) {
           if(ret.status === 200) {
