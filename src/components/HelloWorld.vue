@@ -7,7 +7,7 @@
         <div slot="content">
           <div>
             <Row>
-              <Col span="12">
+              <Col span="8">
                 <Card style="width:320px;border-bottom: white" ::bordered="false" shadow dis-hover>
                   <div style="text-align:center">
 
@@ -33,19 +33,23 @@
                   </div>
                 </Card>
               </Col>
-              <Col span="12">
+	      <Col span="8">
+		echarts
+	      </COl>
+              <Col span="8">
                 <!--<h2>Your Device Address</h2>
                 <h1>{{ devIp }}</h1>-->
 		<div style="background-color:black;color:white">
 		  <p>&nbsp;&nbsp;interface: eth0</p>
 		  <p>&nbsp;&nbsp;IP Address is: 192.168.0.10</p>
-		  <p>&nbsp;&nbsp;======================================================================</p>
-		  <p>&nbsp;&nbsp;<span style="margin-right: 200px">192.168.0.10</span><span style="margin-right: 200px">===></span></p>
+		  <p><div style="margin-left:10px;margin-right:10px;overflow:hidden;text-overflow:clib;white-space:nowrap">================================================================================================================================================================================================</div></p>
+		  <p><Row><Col span="13">&nbsp;</Col><Col span="4">last2sec</Col><Col span="4">last5sec</Col><Col span="3">last10sec</Col></Row></p>
+		  <p><Row><Col span="6">&nbsp;&nbsp;192.168.0.10</Col><Col span="7">==>&nbsp;&nbsp;{{ mcu_ip }}</Col><Col span="4">{{ last2sec_out }}kbps</Col><Col span="4">{{ last5sec_out }}kbps</Col><Col span="3">{{ last10sec_out }}kbps</Col></Row></p>
+		  <p><Row><Col span="6">&nbsp;&nbsp;</Col><Col span="7"><==</Col><Col span="4">{{ last2sec_in }}kbps</Col><Col span="4">{{ last5sec_in }}kbps</Col><Col span="3">{{ last10sec_in }}kbps</Col></Row></p>
 		  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
 		</div>
               </Col>
             </Row>
-
           </div>
         </div>
       </Panel>
@@ -204,6 +208,12 @@
           //{"controlled_ip": "192.168.1.3", "status": "on"},
           //{"controlled_ip": "171.16.1.2", "status": "off"}
         ],
+
+	last2sec_out: null,
+	last5sec_out: null,
+	last10sec_out: null,
+	mcu_ip: null,
+
         rule: {
           protocol: "All",
           local_ip: '',
@@ -249,7 +259,7 @@
       }
     },
     methods: {
-      getDevIP() {
+      getDevIp() {
         var that = this;
         this.$axios.request({
           url: process.env.URL_PATH+"/getDevIp",
@@ -260,6 +270,13 @@
           if (ret.status === 200) {
             that.devIp = ret.data.client_ip;
             that.controlled_ip_list = ret.data.controlled_ip_list;
+	    that.last2sec_out = ret.data.avg2[1];
+	    that.last5sec_out = ret.data.avg5[1];
+	    that.last10sec_out = ret.data.avg10[1];
+	    that.last2sec_in = ret.data.avg2[0];
+	    that.last5sec_in = ret.data.avg5[0];
+	    that.last10sec_in = ret.data.avg10[0];
+	    that.mcu_ip = ret.data.mcu_ip;
           }
         })
       },
@@ -332,10 +349,26 @@
 
 
     },
-    mounted() {
-      this.getDevIP();
+    //mounted() {
+      //this.getDevIp();
       //let msg1 = that.formatJson(row.value)
+    //}
+    mounted() {
+      if (this.timer) {
+        clearInterval(this.timer)
+      } else {
+        var that = this;
+        this.timer = setInterval(function () {
+          that.getDevIp();
+        }, 2000);
+      }
+    },
+
+    beforeDestroy() {
+      clearInterval(this.timer);
+      this.timer = null;
     }
+
   }
 </script>
 
