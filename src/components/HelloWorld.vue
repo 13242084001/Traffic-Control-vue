@@ -40,13 +40,18 @@
                 <!--<h2>Your Device Address</h2>
                 <h1>{{ devIp }}</h1>-->
 		<div style="background-color:black;color:white">
-		  <p>&nbsp;&nbsp;interface: eth0</p>
-		  <p>&nbsp;&nbsp;IP Address is: 192.168.0.10</p>
+		  <p>&nbsp;&nbsp;interface: {{ nic }}</p>
+		  <p>&nbsp;&nbsp;IP Address is: {{ nic_ip }}</p>
 		  <p><div style="margin-left:10px;margin-right:10px;overflow:hidden;text-overflow:clib;white-space:nowrap">================================================================================================================================================================================================</div></p>
-		  <p><Row><Col span="13">&nbsp;</Col><Col span="4">last2sec</Col><Col span="4">last5sec</Col><Col span="3">last10sec</Col></Row></p>
-		  <p><Row><Col span="6">&nbsp;&nbsp;192.168.0.10</Col><Col span="7">==>&nbsp;&nbsp;{{ mcu_ip }}</Col><Col span="4">{{ last2sec_out }}kbps</Col><Col span="4">{{ last5sec_out }}kbps</Col><Col span="3">{{ last10sec_out }}kbps</Col></Row></p>
-		  <p><Row><Col span="6">&nbsp;&nbsp;</Col><Col span="7"><==</Col><Col span="4">{{ last2sec_in }}kbps</Col><Col span="4">{{ last5sec_in }}kbps</Col><Col span="3">{{ last10sec_in }}kbps</Col></Row></p>
-		  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+		  <p><Row><Col span="12">&nbsp;</Col><Col span="4">last2sec</Col><Col span="4">last5sec</Col><Col span="4">last10sec</Col></Row></p>
+		  <p><Row><Col span="6">&nbsp;&nbsp;{{ nic_ip }}</Col><Col span="6">==>&nbsp;&nbsp;{{ mcu_ip }}</Col><Col span="4">{{ last2sec_out }}Kb</Col><Col span="4">{{ last5sec_out }}Kb</Col><Col span="4">{{ last10sec_out }}Kb</Col></Row></p>
+		  <p><Row><Col span="6">&nbsp;&nbsp;</Col><Col span="6"><==</Col><Col span="4">{{ last2sec_in }}Kb</Col><Col span="4">{{ last5sec_in }}Kb</Col><Col span="4">{{ last10sec_in }}Kb</Col></Row></p>
+
+	  	<!--<p><div style="margin-left:10px;margin-right:10px;overflow:hidden;text-overflow:clib;white-space:nowrap">================================================================================================================================================================================================</div></p>-->
+		  <p>&nbsp;</p>
+		  <p><Row><Col span="12">&nbsp;&nbsp;&nbsp;rtt min/avg/max/mdev</Col><Col span="12">packet loss</Col></Row></p>
+		  <p><Row><Col span="12">&nbsp;&nbsp;&nbsp;{{ delay }}</Col><Col span="12">{{ loss }}</Col></Row></p>
+		  <p>&nbsp;</p>
 		</div>
               </Col>
             </Row>
@@ -213,6 +218,10 @@
 	last5sec_out: null,
 	last10sec_out: null,
 	mcu_ip: null,
+	nic: null,
+	nic_ip: null,
+	delay: null,
+	loss: null,
 
         rule: {
           protocol: "All",
@@ -277,6 +286,10 @@
 	    that.last5sec_in = ret.data.avg5[0];
 	    that.last10sec_in = ret.data.avg10[0];
 	    that.mcu_ip = ret.data.mcu_ip;
+	    that.nic = ret.data.nic;
+	    that.nic_ip = ret.data.nic_ip;
+	    that.delay = ret.data["rtt min/avg/max/mdev"];
+	    that.loss = ret.data["packet loss"];
           }
         })
       },
