@@ -12,7 +12,7 @@
   "dependencies": {
     "axios": "^0.18.1",
     "font-awesome": "^4.7.0",
-    "highlight.js": "^9.15.6",
+    "highlight.js": "^10.1.2",
     "iview": "^3.4.1",
     "vue": "^2.5.2",
     "vue-json-viewer": "^2.1.4",
